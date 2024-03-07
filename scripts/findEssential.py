@@ -1,37 +1,56 @@
 #!/usr/bin/env python3
 import numpy as np
-# import cv2
 
 # Define the first set of 3D points
-points_set1 = np.array([[1, 2, 3],
-                        [4, 5, 6],
-                        [7, 8, 9],
-                        [3, 3, 6],
-                        [5, 4, 5],
-                        [2, 2, 3],
-                        [3, 6, 7],
-                        [1, 0, 6]])
+points_set1 = np.array([[1, 2, 1],
+                        [3, 4, 1],
+                        [3.5, 4.5, 1],
+                        [4, 5, 1],
+                        [6, 7, 1],
+                        [8, 9, 1],
+                        [-1, -2, 1],
+                        [-3, -4, 1],
+                        [-5, -6, 1],
+                        [-7, -8, 1],
+                        [7, 8, 1]])
 
 # Define the second set of 3D points
-points_set2 = np.array([[1.5, 1.5, 8.5],
-                        [4.4, 3.4, 5.4],
-                        [7.7, 2.7, 3.7],
-                        [3.9, 4.9, 7.8],
-                        [5.9, 9.8, 9.9],
-                        [2.4, 7.4, 2.4],
-                        [3.1, 2.2, 5.1],
-                        [1.4, 6.4, 8.4]])
+points_set2 = np.array([[11, 12, 1],
+                        [13, 14, 1],
+                        [13.5, 14.5, 1],
+                        [14, 15, 1],
+                        [16, 17, 1],
+                        [18, 19, 1],
+                        [9, 8, 1],
+                        [7, 6, 1],
+                        [5, 4, 1],
+                        [3, 2, 1],
+                        [17, 18, 1]])
 
 
-# Perform element-wise multiplication
-result = points_set1.reshape(-1, 1, 3) * points_set2.reshape(-1, 3, 1)
+# Flatten the points set into 1d array
 
-# Reshape the result to get a matrix of size N*9
-A = result.reshape(-1, 9)
-U, S, Vt = np.linalg.svd(A)
-preF = np.transpose(Vt)[:, -1].reshape(3, 3)
-U, S, Vt = np.linalg.svd(preF)
-S[2] = 0
-postF = np.matmul(np.matmul(U, np.diag(S)), Vt)
-print("postF:", postF)
+def findFundamentalMatrix(points_set1, points_set2):
+    result = np.kron(points_set1, points_set2)
+    A = result.reshape(-1, 9)
+    U, S, Vt = np.linalg.svd(A)
+    F = np.transpose(Vt)[:, -1].reshape(3, 3)
+    U, S, Vt = np.linalg.svd(F)
+    S[2] = 0
+    F_rank2 = np.matmul(np.matmul(U, np.diag(S)), Vt)
+    print(F_rank2)
 
+def findEssentialMatrix(points_set1, points_set2):
+    result = np.kron(points_set1, points_set2)
+    A = result.reshape(-1, 9)
+    U, S, Vt = np.linalg.svd(A)
+    E = np.transpose(Vt)[:, -1].reshape(3, 3)
+    U, S, Vt = np.linalg.svd(E)
+    I = np.identity(3)
+    I[2][2] = 0
+    E_rank2 = np.matmul(np.matmul(U, I), Vt)
+    print(E_rank2)
+
+
+#findFundamentalMatrix(points_set1, points_set2)
+findEssentialMatrix(points_set1, points_set2)
